@@ -28,6 +28,8 @@ function tick() {
 // --- rendering ---
 
 const canvas = document.getElementById("screen");
+canvas.width = GRID_COLS * CELL_SIZE;
+canvas.height = GRID_ROWS * CELL_SIZE;
 const ctx = canvas.getContext("2d");
 
 function drawCell(x, y) {
