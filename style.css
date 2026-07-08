@@ -14,10 +14,13 @@ html, body {
 .phone {
   /* Single scale knob: everything below is sized in em/% off this, so the
      whole phone (screen + D-pad + keypad) grows or shrinks as one unit.
-     vmin ties it to whichever viewport dimension is tighter (width on a
-     tall phone, height on a short one), so it always fits without
-     scrolling; the clamp caps it at a sane size on desktop. */
-  font-size: clamp(13px, 4.6vmin, 19px);
+     The stacked D-pad-above-keypad layout is much taller relative to
+     its width than the phone was before, so fitting by width alone (as
+     a plain vw value would) overflows vertically on both short desktop
+     windows and ordinary phones. Taking the min of a width-based and a
+     height-based term means whichever dimension is tighter wins, so it
+     always fits without scrolling on any viewport shape. */
+  font-size: clamp(10px, min(4.6vw, 1.8vh), 19px);
   width: 20em;
   padding: 1.1em 0.9em 1.3em;
   border-radius: 2.5em 2.5em 3.75em 3.75em;
@@ -78,23 +81,23 @@ html, body {
   touch-action: manipulation;
 }
 
-/* Soft-keys sit in their own full-width row; the D-pad and keypad sit
-   side by side in the row below, each filling its grid column, so
-   together they span the phone edge-to-edge with minimal side margin -
-   all scaling with the single root font-size on .phone. */
+/* Classic layout: soft-keys row, then the D-pad centered below the
+   screen, then the number keypad stacked below the D-pad - not side
+   by side. Both are still large/thumb-friendly; everything scales
+   with the single root font-size on .phone. */
 .controls {
-  margin-top: 0.7em;
-  display: grid;
-  grid-template-columns: 44% 1fr;
-  column-gap: 0.6em;
-  row-gap: 0.5em;
+  margin-top: 0.5em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5em;
   width: 100%;
 }
 
 .soft-keys {
-  grid-column: 1 / -1;
   display: flex;
   justify-content: space-between;
+  width: 100%;
   padding: 0 0.25em;
   color: #cfd3d8;
   font-family: "Press Start 2P", monospace;
@@ -103,7 +106,7 @@ html, body {
 
 .dpad {
   position: relative;
-  width: 100%;
+  width: 58%;
   aspect-ratio: 1 / 1;
 }
 
@@ -167,11 +170,10 @@ html, body {
 }
 
 .keypad {
-  width: 100%;
+  width: 92%;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.4em;
-  align-content: start;
 }
 
 .key {
