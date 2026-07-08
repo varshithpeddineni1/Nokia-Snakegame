@@ -69,6 +69,16 @@ function startGame() {
   respawnFood();
 }
 
+function handleDirectionInput(x, y) {
+  if (state !== "playing") return;
+  setDirection(x, y);
+}
+
+function handleActivate() {
+  if (state === "playing") return;
+  startGame();
+}
+
 function endGame() {
   state = "gameover";
   if (score > highScore) {
@@ -107,28 +117,46 @@ function tick() {
 }
 
 // --- input ---
+// Keyboard and the on-screen D-pad/keypad both funnel into
+// handleDirectionInput() / handleActivate(), which in turn are the
+// only callers of setDirection() / startGame(). One direction-handling
+// path, regardless of input device.
+
+const DIRECTION_VECTORS = {
+  up: [0, -1],
+  down: [0, 1],
+  left: [-1, 0],
+  right: [1, 0],
+};
 
 const KEY_DIRECTIONS = {
-  ArrowUp: [0, -1],
-  ArrowDown: [0, 1],
-  ArrowLeft: [-1, 0],
-  ArrowRight: [1, 0],
+  ArrowUp: DIRECTION_VECTORS.up,
+  ArrowDown: DIRECTION_VECTORS.down,
+  ArrowLeft: DIRECTION_VECTORS.left,
+  ArrowRight: DIRECTION_VECTORS.right,
 };
 
 document.addEventListener("keydown", (event) => {
-  if (state !== "playing") {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      startGame();
-    }
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    handleActivate();
     return;
   }
 
   const mapped = KEY_DIRECTIONS[event.key];
   if (mapped) {
     event.preventDefault();
-    setDirection(mapped[0], mapped[1]);
+    handleDirectionInput(mapped[0], mapped[1]);
   }
+});
+
+document.querySelectorAll("[data-dir]").forEach((el) => {
+  const vector = DIRECTION_VECTORS[el.dataset.dir];
+  el.addEventListener("click", () => handleDirectionInput(vector[0], vector[1]));
+});
+
+document.querySelectorAll('[data-action="activate"]').forEach((el) => {
+  el.addEventListener("click", handleActivate);
 });
 
 // --- presentation hooks (DOM text outside the canvas) ---
