@@ -18,12 +18,35 @@ const snake = [
 
 const food = { x: 15, y: 8 };
 
-let tickCount = 0;
+let direction = { x: 1, y: 0 };
+let nextDirection = direction;
+
+function setDirection(x, y) {
+  const isReverse = x === -direction.x && y === -direction.y;
+  if (isReverse) return;
+  nextDirection = { x, y };
+}
 
 function tick() {
-  tickCount++;
-  console.log("tick", tickCount);
+  direction = nextDirection;
+  const head = snake[0];
+  snake.unshift({ x: head.x + direction.x, y: head.y + direction.y });
+  snake.pop();
 }
+
+// --- input ---
+
+const KEY_DIRECTIONS = {
+  ArrowUp: [0, -1],
+  ArrowDown: [0, 1],
+  ArrowLeft: [-1, 0],
+  ArrowRight: [1, 0],
+};
+
+document.addEventListener("keydown", (event) => {
+  const mapped = KEY_DIRECTIONS[event.key];
+  if (mapped) setDirection(mapped[0], mapped[1]);
+});
 
 // --- rendering ---
 
