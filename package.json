@@ -1,0 +1,14 @@
+{
+  "name": "nokia-snake",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Browser-based Snake game in a Nokia 3310 CSS body. Plain HTML/CSS/JS, no build step.",
+  "scripts": {
+    "lint": "eslint .",
+    "validate:html": "html-validate index.html"
+  },
+  "devDependencies": {
+    "eslint": "^9.19.0",
+    "html-validate": "^8.24.0"
+  }
+}
