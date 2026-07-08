@@ -1,3 +1,7 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 html, body {
   height: 100%;
   margin: 0;
@@ -8,9 +12,15 @@ html, body {
 }
 
 .phone {
-  width: min(320px, 92vw);
-  padding: 24px 20px 30px;
-  border-radius: 40px 40px 60px 60px;
+  /* Single scale knob: everything below is sized in em/% off this, so the
+     whole phone (screen + D-pad + keypad) grows or shrinks as one unit.
+     vmin ties it to whichever viewport dimension is tighter (width on a
+     tall phone, height on a short one), so it always fits without
+     scrolling; the clamp caps it at a sane size on desktop. */
+  font-size: clamp(13px, 4.6vmin, 19px);
+  width: 20em;
+  padding: 1.1em 0.9em 1.3em;
+  border-radius: 2.5em 2.5em 3.75em 3.75em;
   background: linear-gradient(#4a4f57, #23262b);
   box-shadow:
     0 10px 30px rgba(0, 0, 0, 0.6),
@@ -24,28 +34,28 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 14px;
+  margin-bottom: 0.6em;
 }
 
 .earpiece {
-  width: 70px;
-  height: 10px;
+  width: 4.375em;
+  height: 0.625em;
   background: #111;
-  border-radius: 6px;
-  margin-bottom: 10px;
+  border-radius: 0.375em;
+  margin-bottom: 0.625em;
 }
 
 .logo {
   color: #cfd3d8;
   font-family: "Press Start 2P", monospace;
-  font-size: 10px;
-  letter-spacing: 2px;
+  font-size: 0.625em;
+  letter-spacing: 0.125em;
 }
 
 .screen-bezel {
   background: #23262b;
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 0.5em;
+  padding: 0.55em;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -54,10 +64,10 @@ html, body {
 
 #score, #status {
   font-family: "Press Start 2P", monospace;
-  font-size: 8px;
+  font-size: 0.5em;
   color: #aebd9a;
-  margin: 6px 0;
-  min-height: 10px;
+  margin: 0.25em 0;
+  min-height: 0.625em;
   text-align: center;
 }
 
@@ -68,36 +78,40 @@ html, body {
   touch-action: manipulation;
 }
 
+/* Soft-keys sit in their own full-width row; the D-pad and keypad sit
+   side by side in the row below, each filling its grid column, so
+   together they span the phone edge-to-edge with minimal side margin -
+   all scaling with the single root font-size on .phone. */
 .controls {
-  margin-top: 18px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
+  margin-top: 0.7em;
+  display: grid;
+  grid-template-columns: 44% 1fr;
+  column-gap: 0.6em;
+  row-gap: 0.5em;
   width: 100%;
 }
 
 .soft-keys {
+  grid-column: 1 / -1;
   display: flex;
   justify-content: space-between;
-  width: 100%;
-  padding: 0 6px;
+  padding: 0 0.25em;
   color: #cfd3d8;
   font-family: "Press Start 2P", monospace;
-  font-size: 7px;
+  font-size: 0.4375em;
 }
 
 .dpad {
   position: relative;
-  width: 70px;
-  height: 70px;
+  width: 100%;
+  aspect-ratio: 1 / 1;
 }
 
 .dpad > button {
   position: absolute;
   background: #55595f;
   border: none;
-  border-radius: 4px;
+  border-radius: 18%;
   padding: 0;
   margin: 0;
   cursor: pointer;
@@ -113,55 +127,58 @@ html, body {
   background: #6b7178;
 }
 
+.dpad-up,
+.dpad-down {
+  left: 31%;
+  width: 38%;
+  height: 32%;
+}
+
 .dpad-up {
   top: 0;
-  left: 25px;
-  width: 20px;
-  height: 22px;
 }
 
 .dpad-down {
   bottom: 0;
-  left: 25px;
-  width: 20px;
-  height: 22px;
+}
+
+.dpad-left,
+.dpad-right {
+  top: 31%;
+  height: 38%;
+  width: 32%;
 }
 
 .dpad-left {
   left: 0;
-  top: 25px;
-  width: 22px;
-  height: 20px;
 }
 
 .dpad-right {
   right: 0;
-  top: 25px;
-  width: 22px;
-  height: 20px;
 }
 
 .dpad-center {
-  left: 25px;
-  top: 25px;
-  width: 20px;
-  height: 20px;
+  left: 31%;
+  top: 31%;
+  width: 38%;
+  height: 38%;
   background: #3b3f45;
   border-radius: 50%;
 }
 
 .keypad {
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 0.4em;
+  align-content: start;
 }
 
 .key {
-  width: 44px;
-  height: 30px;
+  aspect-ratio: 3 / 2;
   background: linear-gradient(#5a5f66, #3b3f45);
   border: none;
-  border-radius: 6px;
+  border-radius: 14%;
   padding: 0;
   margin: 0;
   display: flex;
@@ -169,7 +186,7 @@ html, body {
   justify-content: center;
   color: #eee;
   font-family: "Press Start 2P", monospace;
-  font-size: 15px;
+  font-size: 1.05em;
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
   cursor: pointer;
   touch-action: manipulation;
