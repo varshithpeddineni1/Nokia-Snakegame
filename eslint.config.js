@@ -12,6 +12,7 @@ module.exports = [
         document: "readonly",
         console: "readonly",
         localStorage: "readonly",
+        navigator: "readonly",
         requestAnimationFrame: "readonly",
         cancelAnimationFrame: "readonly",
       },
