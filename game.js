@@ -32,6 +32,7 @@ let nextDirection = direction;
 let score = 0;
 let highScore = Number(localStorage.getItem(HIGH_SCORE_KEY)) || 0;
 let state = "start"; // "start" | "playing" | "gameover"
+let isPaused = false;
 const food = { x: 0, y: 0 };
 
 function setDirection(x, y) {
@@ -68,19 +69,26 @@ function startGame() {
   score = 0;
   framesSinceTick = 0;
   state = "playing";
+  isPaused = false;
   updateScoreDisplay();
   setStatus("");
   respawnFood();
 }
 
 function handleDirectionInput(x, y) {
-  if (state !== "playing") return;
+  if (state !== "playing" || isPaused) return;
   setDirection(x, y);
 }
 
 function handleActivate() {
   if (state === "playing") return;
   startGame();
+}
+
+function togglePause() {
+  if (state !== "playing") return;
+  isPaused = !isPaused;
+  setStatus(isPaused ? "Paused" : "");
 }
 
 function endGame() {
@@ -147,6 +155,12 @@ document.addEventListener("keydown", (event) => {
     return;
   }
 
+  if (event.key === "p" || event.key === "P" || event.key === "#") {
+    event.preventDefault();
+    togglePause();
+    return;
+  }
+
   const mapped = KEY_DIRECTIONS[event.key];
   if (mapped) {
     event.preventDefault();
@@ -174,6 +188,10 @@ document.querySelectorAll("[data-dir]").forEach((el) => {
 
 document.querySelectorAll('[data-action="activate"]').forEach((el) => {
   bindTap(el, handleActivate);
+});
+
+document.querySelectorAll('[data-action="pause"]').forEach((el) => {
+  bindTap(el, togglePause);
 });
 
 // --- presentation hooks (DOM text outside the canvas) ---
@@ -230,7 +248,7 @@ let framesSinceTick = 0;
 
 function loop() {
   framesSinceTick++;
-  if (state === "playing" && framesSinceTick >= ticksPerMove()) {
+  if (state === "playing" && !isPaused && framesSinceTick >= ticksPerMove()) {
     framesSinceTick = 0;
     tick();
   }
