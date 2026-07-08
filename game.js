@@ -150,13 +150,31 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
+// Real mobile browsers don't reliably synthesize a "click" from a tap on a
+// plain <div>, especially under rapid tapping - a game needs touchstart
+// itself, not the click that may or may not follow it. touchstart calls
+// preventDefault() so the browser doesn't also treat the tap as the start
+// of a scroll/zoom gesture and so it doesn't then fire a duplicate click.
+// The "click" listener stays so the same controls work with a mouse.
+function bindTap(el, handler) {
+  el.addEventListener(
+    "touchstart",
+    (event) => {
+      event.preventDefault();
+      handler();
+    },
+    { passive: false }
+  );
+  el.addEventListener("click", handler);
+}
+
 document.querySelectorAll("[data-dir]").forEach((el) => {
   const vector = DIRECTION_VECTORS[el.dataset.dir];
-  el.addEventListener("click", () => handleDirectionInput(vector[0], vector[1]));
+  bindTap(el, () => handleDirectionInput(vector[0], vector[1]));
 });
 
 document.querySelectorAll('[data-action="activate"]').forEach((el) => {
-  el.addEventListener("click", handleActivate);
+  bindTap(el, handleActivate);
 });
 
 // --- presentation hooks (DOM text outside the canvas) ---
