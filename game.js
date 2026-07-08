@@ -12,6 +12,10 @@ const SPEED_STEP_SCORE = 3;
 
 const HIGH_SCORE_KEY = "snake_highscore";
 
+const IS_TOUCH_DEVICE = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+const START_PROMPT = IS_TOUCH_DEVICE ? "Tap to Start" : "Press Enter to Start";
+const RESTART_PROMPT = IS_TOUCH_DEVICE ? "Tap to Play Again" : "Press Enter";
+
 // --- game state (logic) ---
 
 function initialSnake() {
@@ -86,7 +90,7 @@ function endGame() {
     localStorage.setItem(HIGH_SCORE_KEY, String(highScore));
   }
   updateScoreDisplay();
-  setStatus(`Game Over — Score ${score} — Press Enter`);
+  setStatus(`Game Over — Score ${score} — ${RESTART_PROMPT}`);
 }
 
 function tick() {
@@ -150,22 +154,17 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-// Real mobile browsers don't reliably synthesize a "click" from a tap on a
-// plain <div>, especially under rapid tapping - a game needs touchstart
-// itself, not the click that may or may not follow it. touchstart calls
-// preventDefault() so the browser doesn't also treat the tap as the start
-// of a scroll/zoom gesture and so it doesn't then fire a duplicate click.
-// The "click" listener stays so the same controls work with a mouse.
+// Pointer Events are a single unified path for mouse, touch, and pen -
+// one event, no touch-vs-click branching, no relying on a browser to
+// synthesize a "click" from a tap (which real iOS Safari does not do
+// reliably for custom controls). Every control is also a real <button>,
+// since native interactive elements get correct hit-testing and tap
+// handling on iOS in a way plain <div>s are not guaranteed to.
 function bindTap(el, handler) {
-  el.addEventListener(
-    "touchstart",
-    (event) => {
-      event.preventDefault();
-      handler();
-    },
-    { passive: false }
-  );
-  el.addEventListener("click", handler);
+  el.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    handler();
+  });
 }
 
 document.querySelectorAll("[data-dir]").forEach((el) => {
@@ -196,6 +195,14 @@ const canvas = document.getElementById("screen");
 canvas.width = GRID_COLS * CELL_SIZE;
 canvas.height = GRID_ROWS * CELL_SIZE;
 const ctx = canvas.getContext("2d");
+
+// Tapping the LCD screen itself also starts/restarts - a phone has no
+// Enter key, and the D-pad center is small and easy to miss. Same
+// handleActivate() as the keyboard and the D-pad center call.
+canvas.addEventListener("pointerdown", (event) => {
+  event.preventDefault();
+  handleActivate();
+});
 
 function drawCell(x, y) {
   ctx.fillRect(
@@ -233,5 +240,5 @@ function loop() {
 
 respawnFood();
 updateScoreDisplay();
-setStatus("Press Enter to Start");
+setStatus(START_PROMPT);
 requestAnimationFrame(loop);
