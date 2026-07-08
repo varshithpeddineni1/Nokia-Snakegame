@@ -6,7 +6,11 @@ const GRID_ROWS = 16;
 const CELL_SIZE = 16;
 const CELL_GAP = 2;
 
-const TICKS_PER_MOVE = 10;
+const BASE_TICKS_PER_MOVE = 10;
+const MIN_TICKS_PER_MOVE = 4;
+const SPEED_STEP_SCORE = 3;
+
+const HIGH_SCORE_KEY = "snake_highscore";
 
 // --- game state (logic) ---
 
@@ -22,7 +26,8 @@ let snake = initialSnake();
 let direction = { x: 1, y: 0 };
 let nextDirection = direction;
 let score = 0;
-let gameOver = false;
+let highScore = Number(localStorage.getItem(HIGH_SCORE_KEY)) || 0;
+let state = "start"; // "start" | "playing" | "gameover"
 const food = { x: 0, y: 0 };
 
 function setDirection(x, y) {
@@ -47,20 +52,34 @@ function respawnFood() {
   food.y = cell.y;
 }
 
-function resetGame() {
+function ticksPerMove() {
+  const speedUps = Math.floor(score / SPEED_STEP_SCORE);
+  return Math.max(MIN_TICKS_PER_MOVE, BASE_TICKS_PER_MOVE - speedUps);
+}
+
+function startGame() {
   snake = initialSnake();
   direction = { x: 1, y: 0 };
   nextDirection = direction;
   score = 0;
-  gameOver = false;
+  framesSinceTick = 0;
+  state = "playing";
   updateScoreDisplay();
   setStatus("");
   respawnFood();
 }
 
-function tick() {
-  if (gameOver) return;
+function endGame() {
+  state = "gameover";
+  if (score > highScore) {
+    highScore = score;
+    localStorage.setItem(HIGH_SCORE_KEY, String(highScore));
+  }
+  updateScoreDisplay();
+  setStatus(`Game Over — Score ${score} — Press Enter`);
+}
 
+function tick() {
   direction = nextDirection;
   const head = snake[0];
   const newHead = {
@@ -73,8 +92,7 @@ function tick() {
   const hitSelf = body.some((segment) => segment.x === newHead.x && segment.y === newHead.y);
 
   if (hitSelf) {
-    gameOver = true;
-    setStatus("Game Over — press Enter to restart");
+    endGame();
     return;
   }
 
@@ -98,10 +116,10 @@ const KEY_DIRECTIONS = {
 };
 
 document.addEventListener("keydown", (event) => {
-  if (gameOver) {
+  if (state !== "playing") {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      resetGame();
+      startGame();
     }
     return;
   }
@@ -119,7 +137,7 @@ const scoreEl = document.getElementById("score");
 const statusEl = document.getElementById("status");
 
 function updateScoreDisplay() {
-  scoreEl.textContent = "Score: " + score;
+  scoreEl.textContent = `Score: ${score}    High: ${highScore}`;
 }
 
 function setStatus(text) {
@@ -155,11 +173,12 @@ function draw() {
 
 // --- loop ---
 
-let frameCount = 0;
+let framesSinceTick = 0;
 
 function loop() {
-  frameCount++;
-  if (frameCount % TICKS_PER_MOVE === 0) {
+  framesSinceTick++;
+  if (state === "playing" && framesSinceTick >= ticksPerMove()) {
+    framesSinceTick = 0;
     tick();
   }
   draw();
@@ -168,4 +187,5 @@ function loop() {
 
 respawnFood();
 updateScoreDisplay();
+setStatus("Press Enter to Start");
 requestAnimationFrame(loop);
