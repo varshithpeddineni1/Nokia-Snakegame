@@ -32,7 +32,7 @@ Keep this section honest and up to date. Update it every time a phase completes.
 - [x] Phase 1 — LCD screen + game loop (static snake draws, loop ticks)
 - [x] Phase 2 — Movement + input (snake glides, steers, no self-reverse)
 - [x] Phase 3 — Food, growth, collision, score (playable; edges wrap; self-collision ends game)
-- [ ] Phase 4 — Nokia body in CSS (reads as a 3310)
+- [x] Phase 4 — Nokia body in CSS (reads as a 3310)
 - [ ] Phase 5 — Feel + persistence (speed ramps, high score persists, start/over screens)
 - [ ] Phase 6 — Clickable keypad + mobile + final deploy (playable by tapping on a phone)
 
