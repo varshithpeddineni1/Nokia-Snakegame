@@ -150,22 +150,17 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-// Real mobile browsers don't reliably synthesize a "click" from a tap on a
-// plain <div>, especially under rapid tapping - a game needs touchstart
-// itself, not the click that may or may not follow it. touchstart calls
-// preventDefault() so the browser doesn't also treat the tap as the start
-// of a scroll/zoom gesture and so it doesn't then fire a duplicate click.
-// The "click" listener stays so the same controls work with a mouse.
+// Pointer Events are a single unified path for mouse, touch, and pen -
+// one event, no touch-vs-click branching, no relying on a browser to
+// synthesize a "click" from a tap (which real iOS Safari does not do
+// reliably for custom controls). Every control is also a real <button>,
+// since native interactive elements get correct hit-testing and tap
+// handling on iOS in a way plain <div>s are not guaranteed to.
 function bindTap(el, handler) {
-  el.addEventListener(
-    "touchstart",
-    (event) => {
-      event.preventDefault();
-      handler();
-    },
-    { passive: false }
-  );
-  el.addEventListener("click", handler);
+  el.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    handler();
+  });
 }
 
 document.querySelectorAll("[data-dir]").forEach((el) => {
