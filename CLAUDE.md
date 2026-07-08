@@ -29,7 +29,7 @@ If code and these docs disagree, the docs win. If a doc is wrong, fix the doc in
 Keep this section honest and up to date. Update it every time a phase completes.
 
 - [x] Phase 0 — Scaffold + deploy pipeline (blank green screen live)
-- [ ] Phase 1 — LCD screen + game loop (static snake draws, loop ticks)
+- [x] Phase 1 — LCD screen + game loop (static snake draws, loop ticks)
 - [ ] Phase 2 — Movement + input (snake glides, steers, no self-reverse)
 - [ ] Phase 3 — Food, growth, collision, score (playable; edges wrap; self-collision ends game)
 - [ ] Phase 4 — Nokia body in CSS (reads as a 3310)
