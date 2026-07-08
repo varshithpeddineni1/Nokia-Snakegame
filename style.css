@@ -65,24 +65,7 @@ html, body {
   display: block;
   max-width: 100%;
   height: auto;
-}
-
-/* TEMP DEBUG: remove once real-device touch handling is confirmed */
-#debug-log {
-  width: 100%;
-  max-height: 140px;
-  margin-top: 6px;
-  padding: 4px;
-  overflow-y: auto;
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid #ffcc00;
-  border-radius: 4px;
-  color: #ffcc00;
-  font-family: monospace;
-  font-size: 9px;
-  line-height: 1.4;
-  text-align: left;
-  white-space: pre-line;
+  touch-action: manipulation;
 }
 
 .controls {

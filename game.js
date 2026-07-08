@@ -12,6 +12,10 @@ const SPEED_STEP_SCORE = 3;
 
 const HIGH_SCORE_KEY = "snake_highscore";
 
+const IS_TOUCH_DEVICE = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+const START_PROMPT = IS_TOUCH_DEVICE ? "Tap to Start" : "Press Enter to Start";
+const RESTART_PROMPT = IS_TOUCH_DEVICE ? "Tap to Play Again" : "Press Enter";
+
 // --- game state (logic) ---
 
 function initialSnake() {
@@ -86,7 +90,7 @@ function endGame() {
     localStorage.setItem(HIGH_SCORE_KEY, String(highScore));
   }
   updateScoreDisplay();
-  setStatus(`Game Over — Score ${score} — Press Enter`);
+  setStatus(`Game Over — Score ${score} — ${RESTART_PROMPT}`);
 }
 
 function tick() {
@@ -172,38 +176,6 @@ document.querySelectorAll('[data-action="activate"]').forEach((el) => {
   bindTap(el, handleActivate);
 });
 
-// --- TEMP DEBUG: on-screen event log for real-device diagnosis ---
-// Remove this whole block once we've confirmed which event(s) actually
-// fire on the reporter's iPhone. Deliberately passive (no preventDefault,
-// doesn't touch game state) so it can't mask or change real behavior -
-// it only records what the browser tells us happened.
-
-const debugEl = document.getElementById("debug-log");
-const debugLines = [];
-const DEBUG_MAX_LINES = 12;
-
-function debugLog(line) {
-  debugLines.push(line);
-  if (debugLines.length > DEBUG_MAX_LINES) debugLines.shift();
-  debugEl.textContent = debugLines.join("\n");
-}
-
-debugLog(`PointerEvent supported: ${typeof window.PointerEvent !== "undefined"}`);
-debugLog(`ontouchstart supported: ${"ontouchstart" in window}`);
-debugLog(`UA: ${navigator.userAgent}`);
-
-function debugLabel(el) {
-  if (el.dataset.dir) return `dir=${el.dataset.dir}`;
-  if (el.dataset.action) return `act=${el.dataset.action}`;
-  return `key=${el.textContent.trim()}`;
-}
-
-document.querySelectorAll(".dpad > button, .key").forEach((el) => {
-  ["touchstart", "pointerdown", "mousedown", "click"].forEach((type) => {
-    el.addEventListener(type, () => debugLog(`${type} -> ${debugLabel(el)}`));
-  });
-});
-
 // --- presentation hooks (DOM text outside the canvas) ---
 
 const scoreEl = document.getElementById("score");
@@ -223,6 +195,14 @@ const canvas = document.getElementById("screen");
 canvas.width = GRID_COLS * CELL_SIZE;
 canvas.height = GRID_ROWS * CELL_SIZE;
 const ctx = canvas.getContext("2d");
+
+// Tapping the LCD screen itself also starts/restarts - a phone has no
+// Enter key, and the D-pad center is small and easy to miss. Same
+// handleActivate() as the keyboard and the D-pad center call.
+canvas.addEventListener("pointerdown", (event) => {
+  event.preventDefault();
+  handleActivate();
+});
 
 function drawCell(x, y) {
   ctx.fillRect(
@@ -260,5 +240,5 @@ function loop() {
 
 respawnFood();
 updateScoreDisplay();
-setStatus("Press Enter to Start");
+setStatus(START_PROMPT);
 requestAnimationFrame(loop);
